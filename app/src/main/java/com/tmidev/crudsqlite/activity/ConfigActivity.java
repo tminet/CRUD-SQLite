@@ -9,9 +9,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.tmidev.crudsqlite.R;
@@ -107,6 +109,8 @@ public class ConfigActivity extends AppCompatActivity {
     }
 
     public void cancelar(View view) {
+        resgatarDadosUsuario();
+
         editTextNome.setEnabled(false);
         editTextEmail.setEnabled(false);
         editTextSenha.setEnabled(false);
@@ -135,28 +139,31 @@ public class ConfigActivity extends AppCompatActivity {
             usuario.setNome(editTextNome.getText().toString());
             usuario.setEmail(editTextEmail.getText().toString());
             usuario.setSenha(editTextSenha.getText().toString());
-            controller.alterarDadosUsuario(usuario);
+            if (controller.verificarDisponibiliadeEmail(usuario)) {
+                controller.alterarDadosUsuario(usuario);
+                salvarSharedPrefDadosUsuario();
 
-            salvarSharedPrefDadosUsuario();
+                editTextNome.setEnabled(false);
+                editTextEmail.setEnabled(false);
+                editTextSenha.setEnabled(false);
 
-            editTextNome.setEnabled(false);
-            editTextEmail.setEnabled(false);
-            editTextSenha.setEnabled(false);
+                buttonCancelar.setEnabled(false);
+                buttonCancelar.setVisibility(View.GONE);
 
-            buttonCancelar.setEnabled(false);
-            buttonCancelar.setVisibility(View.GONE);
+                buttonEditar.setVisibility(View.VISIBLE);
+                buttonEditar.setEnabled(true);
 
-            buttonEditar.setVisibility(View.VISIBLE);
-            buttonEditar.setEnabled(true);
+                buttonSalvar.setEnabled(false);
+                buttonSalvar.setVisibility(View.GONE);
 
-            buttonSalvar.setEnabled(false);
-            buttonSalvar.setVisibility(View.GONE);
+                buttonExcluir.setVisibility(View.VISIBLE);
+                buttonExcluir.setEnabled(true);
 
-            buttonExcluir.setVisibility(View.VISIBLE);
-            buttonExcluir.setEnabled(true);
-
-            layoutSenha.setEndIconMode(TextInputLayout.END_ICON_NONE);
-            editTextSenha.setText("000000000000");
+                layoutSenha.setEndIconMode(TextInputLayout.END_ICON_NONE);
+                editTextSenha.setText("000000000000");
+            } else {
+                Toast.makeText(this, "Email indisponivel.", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -176,21 +183,34 @@ public class ConfigActivity extends AppCompatActivity {
 
     private boolean verificarFormulario() {
         boolean isFormularioCompleto = true;
-        if (TextUtils.isEmpty(editTextSenha.getText().toString().trim())) {
+        String nome = editTextNome.getText().toString().trim();
+        String email = editTextEmail.getText().toString().trim();
+        String senha = editTextSenha.getText().toString().trim();
+
+        if (TextUtils.isEmpty(senha)) {
             layoutSenha.setError("Informe uma senha");
             layoutSenha.requestFocus();
             isFormularioCompleto = false;
         }
-        if (TextUtils.isEmpty(editTextEmail.getText().toString().trim())) {
+        if (TextUtils.isEmpty(email)) {
             layoutEmail.setError("Informe seu email");
             layoutEmail.requestFocus();
             isFormularioCompleto = false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            layoutEmail.setError("Email invalido");
+            layoutEmail.requestFocus();
+            isFormularioCompleto = false;
         }
-        if (TextUtils.isEmpty(editTextNome.getText().toString().trim())) {
+        if (TextUtils.isEmpty(nome)) {
             layoutNome.setError("Informe seu nome");
             layoutNome.requestFocus();
             isFormularioCompleto = false;
+        } else if (!AppUtil.nomePattern(nome)) {
+            layoutNome.setError("Nome invalido");
+            layoutNome.requestFocus();
+            isFormularioCompleto = false;
         }
+
         return isFormularioCompleto;
     }
 
