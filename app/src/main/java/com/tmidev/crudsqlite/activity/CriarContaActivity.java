@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -47,11 +48,15 @@ public class CriarContaActivity extends AppCompatActivity {
                 usuarioModel.setSenha(AppUtil.gerarMD5Hash(editTextSenha.getText().toString()));
                 usuarioModel.setData(AppUtil.currentDateTime());
 
-                usuarioController.incluirUsuario(usuarioModel);
-
-                Intent iTarget = new Intent(CriarContaActivity.this, LoginActivity.class);
-                startActivity(iTarget);
-                finish();
+                if (usuarioController.verificarDisponibiliadeEmail(usuarioModel)) {
+                    usuarioController.incluirUsuario(usuarioModel);
+                    Intent iTarget = new Intent(CriarContaActivity.this, LoginActivity.class);
+                    startActivity(iTarget);
+                    finish();
+                } else {
+                    Toast.makeText(this, "Email já registrado.", Toast.LENGTH_SHORT).show();
+                    buttonCriarConta.setEnabled(true);
+                }
             }
         });
 
@@ -76,27 +81,41 @@ public class CriarContaActivity extends AppCompatActivity {
 
     private boolean verificarFormulario() {
         boolean isFormularioCompleto = true;
-        if (TextUtils.isEmpty(editTextSenha.getText().toString().trim())) {
+        String nome = editTextNome.getText().toString().trim();
+        String email = editTextEmail.getText().toString().trim();
+        String senha = editTextSenha.getText().toString().trim();
+
+        if (TextUtils.isEmpty(senha)) {
             layoutSenha.setError("Informe uma senha");
             layoutSenha.requestFocus();
             isFormularioCompleto = false;
         }
-        if (TextUtils.isEmpty(editTextEmail.getText().toString().trim())) {
+        if (TextUtils.isEmpty(email)) {
             layoutEmail.setError("Informe seu email");
             layoutEmail.requestFocus();
             isFormularioCompleto = false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            layoutEmail.setError("Email invalido");
+            layoutEmail.requestFocus();
+            isFormularioCompleto = false;
         }
-        if (TextUtils.isEmpty(editTextNome.getText().toString().trim())) {
+        if (TextUtils.isEmpty(nome)) {
             layoutNome.setError("Informe seu nome");
             layoutNome.requestFocus();
             isFormularioCompleto = false;
+        } else if (!AppUtil.nomePattern(nome)) {
+            layoutNome.setError("Nome invalido");
+            layoutNome.requestFocus();
+            isFormularioCompleto = false;
         }
+
         if (isFormularioCompleto) {
             if (!checkBoxTermo.isChecked()) {
                 Toast.makeText(this, "É necessario aceitar os Termos.", Toast.LENGTH_SHORT).show();
                 isFormularioCompleto = false;
             }
         }
+
         return isFormularioCompleto;
     }
 
