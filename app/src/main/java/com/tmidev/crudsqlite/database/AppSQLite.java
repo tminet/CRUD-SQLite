@@ -62,6 +62,41 @@ public class AppSQLite extends SQLiteOpenHelper {
     }
 
     /**
+     * verifica se email esta disponivel, executado antes de inserir ou alterar dados
+     */
+    public boolean emailAvailable(String tabela, ContentValues dados) {
+        boolean disponivel = true;
+        int id = Integer.parseInt(dados.getAsString("id"));
+        String email = dados.getAsString("email");
+        if (id > 0) {
+            // caso o id seja do proprio usuario, precisa permitir ele salvar seus dados mantendo o mesmo email anterior
+            String sql = "SELECT * FROM " + tabela + " WHERE email = '" + email + "' AND id <> '" + id + "'";
+            try {
+                cursor = db.rawQuery(sql, null);
+                if (cursor.getCount() > 0) {
+                    disponivel = false;
+                }
+            } catch (SQLException e) {
+                Log.e(AppUtil.APP_LOG, tabela + "falha ao executar o emailAvailable(): " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            // verificação caso não tenha nenhum id, apenas quando é um novo cadastro
+            String sql = "SELECT * FROM " + tabela + " WHERE email = '" + email + "'";
+            try {
+                cursor = db.rawQuery(sql, null);
+                if (cursor.getCount() > 0) {
+                    disponivel = false;
+                }
+            } catch (SQLException e) {
+                Log.e(AppUtil.APP_LOG, tabela + "falha ao executar o emailAvailable(): " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        return disponivel;
+    }
+
+    /**
      * verifica dados para autenticação do usuario no sqlite
      */
     public UsuarioModel login(String tabela, ContentValues dados) {
@@ -133,6 +168,9 @@ public class AppSQLite extends SQLiteOpenHelper {
         return sucesso;
     }
 
+    /**
+     * lista usuarios
+     */
     public List<UsuarioModel> list(String tabela) {
         List<UsuarioModel> list = new ArrayList<>();
         UsuarioModel usuario;
