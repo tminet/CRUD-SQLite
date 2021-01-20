@@ -16,7 +16,7 @@ public class AppUtil {
     public static final String APP_PREF = "app_pref";
 
     /**
-     * gerar md5
+     * gera md5
      *
      * @param senha pura do usuario
      * @return senha em md5
@@ -44,7 +44,7 @@ public class AppUtil {
     }
 
     /**
-     *
+     * data e hora do dispositivo
      */
     public static String currentDateTime() {
         Calendar calendar = Calendar.getInstance();
@@ -52,6 +52,11 @@ public class AppUtil {
         String time = DateFormat.getTimeInstance().format(calendar.getTime());
 
         return time + " - " + date;
+    }
+
+    public static boolean nomePattern(String nome) {
+        final String pattern = "([a-zA-Z])+(\\s?[a-zA-Z])+";
+        return nome.matches(pattern);
     }
 
     // listener para verificar quando algo é digitado
