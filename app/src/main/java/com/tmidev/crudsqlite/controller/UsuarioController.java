@@ -29,6 +29,13 @@ public class UsuarioController extends AppSQLite {
         return insert(TABELA, dados);
     }
 
+    public boolean verificarDisponibiliadeEmail(UsuarioModel usuario){
+        dados = new ContentValues();
+        dados.put(UsuarioDataModel.ID, usuario.getId());
+        dados.put(UsuarioDataModel.EMAIL, usuario.getEmail());
+        return  emailAvailable(TABELA, dados);
+    }
+
     public UsuarioModel autenticarUsuario(UsuarioModel usuario) {
         dados = new ContentValues();
         dados.put(UsuarioDataModel.EMAIL, usuario.getEmail());
