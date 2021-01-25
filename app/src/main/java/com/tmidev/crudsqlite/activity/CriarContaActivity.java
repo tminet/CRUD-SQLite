@@ -103,7 +103,7 @@ public class CriarContaActivity extends AppCompatActivity {
             layoutNome.setError("Informe seu nome");
             layoutNome.requestFocus();
             isFormularioCompleto = false;
-        } else if (!AppUtil.nomePattern(nome)) {
+        } else if (AppUtil.nomePattern(nome)) {
             layoutNome.setError("Nome invalido");
             layoutNome.requestFocus();
             isFormularioCompleto = false;

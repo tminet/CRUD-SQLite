@@ -6,7 +6,6 @@ import android.text.TextWatcher;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class AppUtil {
@@ -54,9 +53,12 @@ public class AppUtil {
         return time + " - " + date;
     }
 
+    /**
+     * virifica se uma string possui os caracteres necessarios
+     */
     public static boolean nomePattern(String nome) {
         final String pattern = "([a-zA-Z])+(\\s?[a-zA-Z])+";
-        return nome.matches(pattern);
+        return !nome.matches(pattern);
     }
 
     // listener para verificar quando algo é digitado
